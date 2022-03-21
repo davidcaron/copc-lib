@@ -243,7 +243,7 @@ def NewFileExample():
 
     # Create our new file with the specified format, scale, and offset
     cfg = copc.CopcConfigWriter(
-        8, [0.1, 0.1, 0.1], [50, 50, 50], "TEST_WKT", has_extended_stats=True
+        8, [0.1, 0.1, 0.1], [50, 50, 50], "TEST_WKT"
     )
     # As of now, the library will not automatically compute the min/max of added points
     # so we will have to calculate it ourselves
@@ -259,17 +259,6 @@ def NewFileExample():
     # writer = copc.FileWriter("new-copc.copc.laz", cfg,None,None,None,None,None)
     # writer = copc.FileWriter("new-copc.copc.laz", cfg,(1,1,1),(1,1,1),"test",)
     header = writer.copc_config.las_header
-
-    # Set the COPC Extents
-    extents = writer.copc_config.copc_extents
-
-    extents.intensity.minimum = 0
-    extents.intensity.maximum = 10000
-    extents.intensity.mean = 50
-    extents.intensity.var = 5
-
-    extents.classification.minimum = 5
-    extents.classification.maximum = 201
 
     # First we'll add a root node
     key = copc.VoxelKey(0, 0, 0, 0)

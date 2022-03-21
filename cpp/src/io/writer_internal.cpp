@@ -2,7 +2,6 @@
 #include <iterator>
 #include <stdexcept>
 
-#include "copc-lib/copc/extents.hpp"
 #include "copc-lib/hierarchy/internal/hierarchy.hpp"
 #include "copc-lib/io/internal/writer_internal.hpp"
 #include "copc-lib/laz/compressor.hpp"
@@ -18,18 +17,11 @@ size_t WriterInternal::OffsetToPointData() const
 {
     size_t base_offset(375 + (54 + 160) + (54 + (34 + 4 * 6))); // header + COPC vlr + LAZ vlr (max 4 items)
 
-    size_t extents_offset =
-        CopcExtents::ByteSize(copc_config_->LasHeader()->PointFormatId(), copc_config_->ExtraBytesVlr().items.size()) +
-        lazperf::vlr_header::Size;
-    // If we store extended stats we need two extents VLRs
-    if (copc_config_->CopcExtents()->HasExtendedStats())
-        extents_offset *= 2;
-
     size_t eb_offset = copc_config_->ExtraBytesVlr().size();
     if (eb_offset > 0)
         eb_offset += lazperf::vlr_header::Size;
 
-    return base_offset + extents_offset + eb_offset;
+    return base_offset + eb_offset;
 }
 
 WriterInternal::WriterInternal(std::ostream &out_stream, std::shared_ptr<CopcConfigWriter> copc_config,
@@ -80,37 +72,15 @@ void WriterInternal::WriteHeader()
                    VARIABLE_CHUNK_SIZE);
 
     auto las_header_vlr = copc_config_->LasHeader()->ToLazPerf(OffsetToPointData(), point_count_, evlr_offset_,
-                                                               evlr_count_, copc_config_->LasHeader()->EbByteSize(),
-                                                               copc_config_->CopcExtents()->HasExtendedStats());
+                                                               evlr_count_, copc_config_->LasHeader()->EbByteSize());
 
     out_stream_.seekp(0);
     las_header_vlr.write(out_stream_);
 
     // Write the COPC Info VLR.
-    auto copc_info_vlr = copc_config_->CopcInfo()->ToLazPerf(*copc_config_->CopcExtents()->GpsTime());
+    auto copc_info_vlr = copc_config_->CopcInfo()->ToLazPerf();
     copc_info_vlr.header().write(out_stream_);
     copc_info_vlr.write(out_stream_);
-
-    // Write the COPC Extents VLR.
-    auto extents_vlr = copc_config_->CopcExtents()->ToLazPerf({las_header_vlr.minx, las_header_vlr.maxx},
-                                                              {las_header_vlr.miny, las_header_vlr.maxy},
-                                                              {las_header_vlr.minz, las_header_vlr.maxz});
-    extents_vlr.header().write(out_stream_);
-    extents_vlr.write(out_stream_);
-
-    // Write the COPC Extended stats VLR.
-    if (copc_config_->CopcExtents()->HasExtendedStats())
-    {
-        auto extended_stats_vlr = copc_config_->CopcExtents()->ToLazPerfExtended();
-
-        auto header = extended_stats_vlr.header();
-        header.user_id = "rock_robotic";
-        header.record_id = 10001;
-        header.description = "COPC extended stats";
-
-        header.write(out_stream_);
-        extended_stats_vlr.write(out_stream_);
-    }
 
     // Write the LAZ VLR
     lazVlr.header().write(out_stream_);

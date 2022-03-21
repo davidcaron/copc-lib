@@ -11,10 +11,10 @@ namespace copc
 void Writer::InitWriter(std::ostream &out_stream, const CopcConfigWriter &copc_config_writer,
                         const std::optional<int8_t> &point_format_id, const std::optional<Vector3> &scale,
                         const std::optional<Vector3> &offset, const std::optional<std::string> &wkt,
-                        const std::optional<las::EbVlr> &extra_bytes_vlr, const std::optional<bool> &has_extended_stats)
+                        const std::optional<las::EbVlr> &extra_bytes_vlr)
 {
 
-    if (point_format_id || scale || offset || wkt || extra_bytes_vlr || has_extended_stats)
+    if (point_format_id || scale || offset || wkt || extra_bytes_vlr)
     {
         // If we need to update either parameter we need to create a new ConfigFileWriter
         auto new_point_format_id = copc_config_writer.LasHeader().PointFormatId();
@@ -37,19 +37,12 @@ void Writer::InitWriter(std::ostream &out_stream, const CopcConfigWriter &copc_c
         if (extra_bytes_vlr)
             new_extra_bytes_vlr = *extra_bytes_vlr;
 
-        auto new_has_extended_stats = copc_config_writer.CopcExtents().HasExtendedStats();
-        if (has_extended_stats)
-            new_has_extended_stats = *has_extended_stats;
-
         las::LasHeader new_header(copc_config_writer.LasHeader(), new_point_format_id,
                                   las::PointBaseByteSize(new_point_format_id) +
                                       las::NumBytesFromExtraBytes(new_extra_bytes_vlr.items),
                                   new_scale, new_offset);
 
-        copc::CopcExtents new_extents(copc_config_writer.CopcExtents(), new_point_format_id,
-                                      new_extra_bytes_vlr.items.size(), new_has_extended_stats);
-
-        copc::CopcConfigWriter new_copc_config_writer(new_header, copc_config_writer.CopcInfo(), new_extents, new_wkt,
+        copc::CopcConfigWriter new_copc_config_writer(new_header, copc_config_writer.CopcInfo(), new_wkt,
                                                       new_extra_bytes_vlr);
 
         this->config_ = std::make_shared<CopcConfigWriter>(new_copc_config_writer);

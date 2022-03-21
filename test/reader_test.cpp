@@ -33,43 +33,8 @@ TEST_CASE("Reader tests", "[Reader]")
             REQUIRE_THAT(copc_info.spacing, Catch::Matchers::WithinAbs(36.3711, 0.0001));
             REQUIRE(copc_info.root_hier_offset == 73017045);
             REQUIRE(copc_info.root_hier_size == 8896);
-        }
-
-        SECTION("GetCopcExtents Test")
-        {
-            auto copc_extents = reader.CopcConfig().CopcExtents();
-            REQUIRE(!copc_extents.HasExtendedStats());
-            REQUIRE(copc_extents.PointFormatId() == 7);
-            REQUIRE_THAT(copc_extents.Intensity()->minimum, Catch::Matchers::WithinAbs(0, 0.0001));
-            REQUIRE_THAT(copc_extents.Intensity()->maximum, Catch::Matchers::WithinAbs(254, 0.0001));
-            REQUIRE_THAT(copc_extents.ReturnNumber()->minimum, Catch::Matchers::WithinAbs(1, 0.0001));
-            REQUIRE_THAT(copc_extents.ReturnNumber()->maximum, Catch::Matchers::WithinAbs(4, 0.0001));
-            REQUIRE_THAT(copc_extents.NumberOfReturns()->minimum, Catch::Matchers::WithinAbs(1, 0.0001));
-            REQUIRE_THAT(copc_extents.NumberOfReturns()->maximum, Catch::Matchers::WithinAbs(4, 0.0001));
-            REQUIRE_THAT(copc_extents.ScannerChannel()->minimum, Catch::Matchers::WithinAbs(0, 0.0001));
-            REQUIRE_THAT(copc_extents.ScannerChannel()->maximum, Catch::Matchers::WithinAbs(0, 0.0001));
-            REQUIRE_THAT(copc_extents.ScanDirectionFlag()->minimum, Catch::Matchers::WithinAbs(0, 0.0001));
-            REQUIRE_THAT(copc_extents.ScanDirectionFlag()->maximum, Catch::Matchers::WithinAbs(1, 0.0001));
-            REQUIRE_THAT(copc_extents.EdgeOfFlightLine()->minimum, Catch::Matchers::WithinAbs(0, 0.0001));
-            REQUIRE_THAT(copc_extents.EdgeOfFlightLine()->maximum, Catch::Matchers::WithinAbs(0, 0.0001));
-            REQUIRE_THAT(copc_extents.Classification()->minimum, Catch::Matchers::WithinAbs(0, 0.0001));
-            REQUIRE_THAT(copc_extents.Classification()->maximum, Catch::Matchers::WithinAbs(77, 0.0001));
-            REQUIRE_THAT(copc_extents.UserData()->minimum, Catch::Matchers::WithinAbs(115, 0.0001));
-            REQUIRE_THAT(copc_extents.UserData()->maximum, Catch::Matchers::WithinAbs(156, 0.0001));
-            REQUIRE_THAT(copc_extents.ScanAngle()->minimum, Catch::Matchers::WithinAbs(-21, 0.0001));
-            REQUIRE_THAT(copc_extents.ScanAngle()->maximum, Catch::Matchers::WithinAbs(20, 0.0001));
-            REQUIRE_THAT(copc_extents.PointSourceId()->minimum, Catch::Matchers::WithinAbs(7326, 0.0001));
-            REQUIRE_THAT(copc_extents.PointSourceId()->maximum, Catch::Matchers::WithinAbs(7334, 0.0001));
-            REQUIRE_THAT(copc_extents.GpsTime()->minimum, Catch::Matchers::WithinAbs(245369.89656857715, 0.0001));
-            REQUIRE_THAT(copc_extents.GpsTime()->maximum, Catch::Matchers::WithinAbs(249783.70312432514, 0.0001));
-            REQUIRE_THAT(copc_extents.Red()->minimum, Catch::Matchers::WithinAbs(4352, 0.0001));
-            REQUIRE_THAT(copc_extents.Red()->maximum, Catch::Matchers::WithinAbs(65280, 0.0001));
-            REQUIRE_THAT(copc_extents.Green()->minimum, Catch::Matchers::WithinAbs(0, 0.0001));
-            REQUIRE_THAT(copc_extents.Green()->maximum, Catch::Matchers::WithinAbs(65280, 0.0001));
-            REQUIRE_THAT(copc_extents.Blue()->minimum, Catch::Matchers::WithinAbs(1536, 0.0001));
-            REQUIRE_THAT(copc_extents.Blue()->maximum, Catch::Matchers::WithinAbs(65280, 0.0001));
-            REQUIRE_THROWS(copc_extents.Nir());
-            REQUIRE(copc_extents.ExtraBytes().empty());
+            REQUIRE(copc_info.gpstime_minimum == 0);
+            REQUIRE(copc_info.gpstime_maximum == 0);
         }
 
         SECTION("WKT")
@@ -265,8 +230,7 @@ TEST_CASE("Spatial Query Functions", "[Reader]")
             //                                                               std::ceil(header.max.y),
             //                                                               std::ceil(header.max.z)));
             //            REQUIRE(subset_points.Get().size() == header.point_count);
-        }
-        {
+        } {
             // Take horizontal 2D box of [200,200] roughly in the middle of the point cloud.
             auto subset_points = reader.GetPointsWithinBox(middle_box);
             REQUIRE(subset_points.Get().size() == 91178);

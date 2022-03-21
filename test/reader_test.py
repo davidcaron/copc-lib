@@ -29,42 +29,8 @@ def test_reader():
     assert copc_info.spacing == pytest.approx(36.3711, 0.0001)
     assert copc_info.root_hier_offset == 73017045
     assert copc_info.root_hier_size == 8896
-
-    # GetCopcExtents Test
-    copc_extents = reader.copc_config.copc_extents
-    assert ~copc_extents.has_extended_stats
-    assert copc_extents.point_format_id == 7
-    assert copc_extents.intensity.minimum == pytest.approx(0, 0.0001)
-    assert copc_extents.intensity.maximum == pytest.approx(254, 0.0001)
-    assert copc_extents.return_number.minimum == pytest.approx(1, 0.0001)
-    assert copc_extents.return_number.maximum == pytest.approx(4, 0.0001)
-    assert copc_extents.number_of_returns.minimum == pytest.approx(1, 0.0001)
-    assert copc_extents.number_of_returns.maximum == pytest.approx(4, 0.0001)
-    assert copc_extents.scanner_channel.minimum == pytest.approx(0, 0.0001)
-    assert copc_extents.scanner_channel.maximum == pytest.approx(0, 0.0001)
-    assert copc_extents.scan_direction_flag.minimum == pytest.approx(0, 0.0001)
-    assert copc_extents.scan_direction_flag.maximum == pytest.approx(1, 0.0001)
-    assert copc_extents.edge_of_flight_line.minimum == pytest.approx(0, 0.0001)
-    assert copc_extents.edge_of_flight_line.maximum == pytest.approx(0, 0.0001)
-    assert copc_extents.classification.minimum == pytest.approx(0, 0.0001)
-    assert copc_extents.classification.maximum == pytest.approx(77, 0.0001)
-    assert copc_extents.user_data.minimum == pytest.approx(115, 0.0001)
-    assert copc_extents.user_data.maximum == pytest.approx(156, 0.0001)
-    assert copc_extents.scan_angle.minimum == pytest.approx(-21, 0.0001)
-    assert copc_extents.scan_angle.maximum == pytest.approx(20, 0.0001)
-    assert copc_extents.point_source_id.minimum == pytest.approx(7326, 0.0001)
-    assert copc_extents.point_source_id.maximum == pytest.approx(7334, 0.0001)
-    assert copc_extents.gps_time.minimum == pytest.approx(245369.89656857715, 0.0001)
-    assert copc_extents.gps_time.maximum == pytest.approx(249783.70312432514, 0.0001)
-    assert copc_extents.red.minimum == pytest.approx(4352, 0.0001)
-    assert copc_extents.red.maximum == pytest.approx(65280, 0.0001)
-    assert copc_extents.green.minimum == pytest.approx(0, 0.0001)
-    assert copc_extents.green.maximum == pytest.approx(65280, 0.0001)
-    assert copc_extents.blue.minimum == pytest.approx(1536, 0.0001)
-    assert copc_extents.blue.maximum == pytest.approx(65280, 0.0001)
-    with pytest.raises(RuntimeError):
-        assert copc_extents.nir
-    assert len(copc_extents.extra_bytes) == 0
+    assert copc_info.gpstime_minimum == 0
+    assert copc_info.gpstime_maximum == 0
 
     # WKT Test
     wkt = reader.copc_config.wkt

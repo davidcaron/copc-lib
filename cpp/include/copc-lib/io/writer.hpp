@@ -28,10 +28,9 @@ class Writer : public BaseIO
     Writer(std::ostream &out_stream, const CopcConfigWriter &copc_config_writer,
            const std::optional<int8_t> &point_format_id = {}, const std::optional<Vector3> &scale = {},
            const std::optional<Vector3> &offset = {}, const std::optional<std::string> &wkt = {},
-           const std::optional<las::EbVlr> &extra_bytes_vlr = {}, const std::optional<bool> &has_extended_stats = {})
+           const std::optional<las::EbVlr> &extra_bytes_vlr = {})
     {
-        InitWriter(out_stream, copc_config_writer, point_format_id, scale, offset, wkt, extra_bytes_vlr,
-                   has_extended_stats);
+        InitWriter(out_stream, copc_config_writer, point_format_id, scale, offset, wkt, extra_bytes_vlr);
     }
 
     // Writes the file out
@@ -70,7 +69,7 @@ class Writer : public BaseIO
     void InitWriter(std::ostream &out_stream, const CopcConfigWriter &copc_file_writer,
                     const std::optional<int8_t> &point_format_id, const std::optional<Vector3> &scale,
                     const std::optional<Vector3> &offset, const std::optional<std::string> &wkt,
-                    const std::optional<las::EbVlr> &extra_bytes_vlr, const std::optional<bool> &has_extended_stats);
+                    const std::optional<las::EbVlr> &extra_bytes_vlr);
     // Gets the sum of the byte size the extra bytes will take up, for calculating point_record_len
     static int NumBytesFromExtraBytes(const std::vector<las::EbVlr::ebfield> &items);
 };
@@ -81,15 +80,13 @@ class FileWriter : public Writer
     FileWriter(const std::string &file_path, const CopcConfigWriter &copc_file_writer,
                const std::optional<int8_t> &point_format_id = {}, const std::optional<Vector3> &scale = {},
                const std::optional<Vector3> &offset = {}, const std::optional<std::string> &wkt = {},
-               const std::optional<las::EbVlr> &extra_bytes_vlr = {},
-               const std::optional<bool> &has_extended_stats = {})
+               const std::optional<las::EbVlr> &extra_bytes_vlr = {})
     {
 
         f_stream_.open(file_path.c_str(), std::ios::out | std::ios::binary);
         if (!f_stream_.good())
             throw std::runtime_error("FileWriter: Error while opening file path.");
-        InitWriter(f_stream_, copc_file_writer, point_format_id, scale, offset, wkt, extra_bytes_vlr,
-                   has_extended_stats);
+        InitWriter(f_stream_, copc_file_writer, point_format_id, scale, offset, wkt, extra_bytes_vlr);
     }
 
     void Close() override;

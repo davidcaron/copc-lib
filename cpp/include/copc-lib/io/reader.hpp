@@ -62,7 +62,6 @@ class Reader : public BaseIO
     std::vector<Node> GetNodesIntersectBox(const Box &box, double resolution = 0);
     las::Points GetPointsWithinBox(const Box &box, double resolution = 0);
     bool ValidateSpatialBounds(bool verbose = false);
-    // TODO: Add a function to validate extents.
 
     copc::CopcConfig CopcConfig() { return config_; }
 
@@ -85,8 +84,6 @@ class Reader : public BaseIO
                              uint16_t record_id);
     // Finds and loads the COPC vlr
     CopcInfo ReadCopcInfoVlr();
-    // Finds and loads the COPC vlr
-    CopcExtents ReadCopcExtentsVlr(std::map<uint64_t, las::VlrHeader> &vlrs, const las::EbVlr &eb_vlr) const;
     // Finds and loads the WKT vlr
     las::WktVlr ReadWktVlr(std::map<uint64_t, las::VlrHeader> &vlrs);
     // Finds and loads EB vlr

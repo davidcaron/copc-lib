@@ -29,35 +29,6 @@ class VlrHeader : public lazperf::evlr_header
     lazperf::evlr_header ToLazperfEvlrHeader() const;
 };
 
-class CopcExtentsVlr : public lazperf::vlr
-{
-  public:
-    struct CopcExtent
-    {
-        double minimum;
-        double maximum;
-
-        CopcExtent(double minimum, double maximum) : minimum(minimum), maximum(maximum) {}
-
-        CopcExtent() : minimum(0), maximum(0) {}
-    };
-
-    std::vector<CopcExtent> items;
-
-    CopcExtentsVlr();
-    CopcExtentsVlr(int numExtentItems);
-    void setItem(int i, const CopcExtent &item);
-    void addItem(const CopcExtent &item);
-    virtual ~CopcExtentsVlr();
-
-    static CopcExtentsVlr create(std::istream &in, int byteSize);
-    void read(std::istream &in, int byteSize);
-    void write(std::ostream &out) const;
-    virtual uint64_t size() const;
-    virtual lazperf::vlr_header header() const;
-    virtual lazperf::evlr_header eheader() const;
-};
-
 } // namespace copc::las
 
 namespace lazperf

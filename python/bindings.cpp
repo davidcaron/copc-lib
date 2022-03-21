@@ -9,7 +9,6 @@
 #include <pybind11/stl.h>
 #include <pybind11/stl_bind.h>
 
-#include <copc-lib/copc/extents.hpp>
 #include <copc-lib/copc/info.hpp>
 #include <copc-lib/geometry/box.hpp>
 #include <copc-lib/hierarchy/key.hpp>
@@ -417,13 +416,12 @@ PYBIND11_MODULE(_core, m)
     py::class_<las::EbVlr>(m, "EbVlr").def(py::init<int>()).def_readwrite("items", &las::EbVlr::items);
 
     py::class_<FileWriter>(m, "FileWriter")
-        .def(
-            py::init<const std::string &, const CopcConfigWriter &, const std::optional<uint8_t> &,
-                     const std::optional<Vector3> &, const std::optional<Vector3> &, const std::optional<std::string> &,
-                     const std::optional<las::EbVlr> &, const std::optional<bool> &>(),
-            py::arg("file_path"), py::arg("config"), py::arg("point_format_id") = py::none(),
-            py::arg("scale") = py::none(), py::arg("offset") = py::none(), py::arg("wkt") = py::none(),
-            py::arg("extra_bytes_vlr") = py::none(), py::arg("has_extended_stats") = py::none())
+        .def(py::init<const std::string &, const CopcConfigWriter &, const std::optional<uint8_t> &,
+                      const std::optional<Vector3> &, const std::optional<Vector3> &,
+                      const std::optional<std::string> &, const std::optional<las::EbVlr> &>(),
+             py::arg("file_path"), py::arg("config"), py::arg("point_format_id") = py::none(),
+             py::arg("scale") = py::none(), py::arg("offset") = py::none(), py::arg("wkt") = py::none(),
+             py::arg("extra_bytes_vlr") = py::none())
         .def_property_readonly("copc_config", &Writer::CopcConfig)
         .def("FindNode", &Writer::FindNode)
         .def("Close", &FileWriter::Close)
@@ -522,20 +520,17 @@ PYBIND11_MODULE(_core, m)
     py::class_<CopcConfig, std::shared_ptr<CopcConfig>>(m, "CopcConfig")
         .def_property_readonly("las_header", &CopcConfig::LasHeader)
         .def_property_readonly("copc_info", &CopcConfig::CopcInfo)
-        .def_property_readonly("copc_extents", &CopcConfig::CopcExtents)
         .def_property_readonly("extra_bytes_vlr", &CopcConfig::ExtraBytesVlr)
         .def_property_readonly("wkt", &CopcConfig::Wkt);
 
     py::class_<CopcConfigWriter, std::shared_ptr<CopcConfigWriter>>(m, "CopcConfigWriter")
-        .def(
-            py::init<const int8_t &, const Vector3 &, const Vector3 &, const std::string &, const las::EbVlr &, bool>(),
-            py::arg("point_format_id"), py::arg("scale") = Vector3::DefaultScale(),
-            py::arg("offset") = Vector3::DefaultOffset(), py::arg("wkt") = "",
-            py::arg("extra_bytes_vlr") = las::EbVlr(0), py::arg("has_extended_stats") = false)
+        .def(py::init<const int8_t &, const Vector3 &, const Vector3 &, const std::string &, const las::EbVlr &>(),
+             py::arg("point_format_id"), py::arg("scale") = Vector3::DefaultScale(),
+             py::arg("offset") = Vector3::DefaultOffset(), py::arg("wkt") = "",
+             py::arg("extra_bytes_vlr") = las::EbVlr(0))
         .def(py::init<const CopcConfig &>())
         .def_property_readonly("las_header", py::overload_cast<>(&CopcConfigWriter::LasHeader))
         .def_property_readonly("copc_info", py::overload_cast<>(&CopcConfigWriter::CopcInfo))
-        .def_property_readonly("copc_extents", py::overload_cast<>(&CopcConfigWriter::CopcExtents))
         .def_property_readonly("extra_bytes_vlr", &CopcConfig::ExtraBytesVlr)
         .def_property_readonly("wkt", &CopcConfig::Wkt);
 
@@ -550,61 +545,8 @@ PYBIND11_MODULE(_core, m)
         .def_readwrite("spacing", &CopcInfo::spacing)
         .def_readwrite("root_hier_offset", &CopcInfo::root_hier_offset)
         .def_readwrite("root_hier_size", &CopcInfo::root_hier_size)
+        .def_readwrite("gpstime_minimum", &CopcInfo::gpstime_minimum)
+        .def_readwrite("gpstime_maximum", &CopcInfo::gpstime_maximum)
         .def("__str__", &CopcInfo::ToString)
         .def("__repr__", &CopcInfo::ToString);
-
-    py::class_<CopcExtent, std::shared_ptr<CopcExtent>>(m, "CopcExtent")
-        .def(py::init<>())
-        .def(py::init<double, double, double, double>(), py::arg("minimum"), py::arg("maximum"), py::arg("mean") = 0,
-             py::arg("var") = 1)
-        .def(py::init<const std::vector<double> &>(), py::arg("list"))
-        .def_readwrite("minimum", &CopcExtent::minimum)
-        .def_readwrite("maximum", &CopcExtent::maximum)
-        .def_readwrite("mean", &CopcExtent::mean)
-        .def_readwrite("var", &CopcExtent::var)
-        .def(py::self == py::self)
-        .def("__str__", &CopcExtent::ToString)
-        .def("__repr__", &CopcExtent::ToString);
-
-    py::implicitly_convertible<py::tuple, CopcExtent>();
-
-    py::class_<CopcExtents, std::shared_ptr<CopcExtents>>(m, "CopcExtents")
-        .def(py::init<int8_t, uint16_t>(), py::arg("point_format_id"), py::arg("num_eb_items") = 0)
-        .def_property_readonly("point_format_id", &CopcExtents::PointFormatId)
-        .def_property_readonly("has_extended_stats", &CopcExtents::HasExtendedStats)
-        .def_property("intensity", py::overload_cast<>(&CopcExtents::Intensity),
-                      py::overload_cast<std::shared_ptr<CopcExtent>>(&CopcExtents::Intensity))
-        .def_property("return_number", py::overload_cast<>(&CopcExtents::ReturnNumber),
-                      py::overload_cast<std::shared_ptr<CopcExtent>>(&CopcExtents::ReturnNumber))
-        .def_property("number_of_returns", py::overload_cast<>(&CopcExtents::NumberOfReturns),
-                      py::overload_cast<std::shared_ptr<CopcExtent>>(&CopcExtents::NumberOfReturns))
-        .def_property("scanner_channel", py::overload_cast<>(&CopcExtents::ScannerChannel),
-                      py::overload_cast<std::shared_ptr<CopcExtent>>(&CopcExtents::ScannerChannel))
-        .def_property("scan_direction_flag", py::overload_cast<>(&CopcExtents::ScanDirectionFlag),
-                      py::overload_cast<std::shared_ptr<CopcExtent>>(&CopcExtents::ScanDirectionFlag))
-        .def_property("edge_of_flight_line", py::overload_cast<>(&CopcExtents::EdgeOfFlightLine),
-                      py::overload_cast<std::shared_ptr<CopcExtent>>(&CopcExtents::EdgeOfFlightLine))
-        .def_property("classification", py::overload_cast<>(&CopcExtents::Classification),
-                      py::overload_cast<std::shared_ptr<CopcExtent>>(&CopcExtents::Classification))
-        .def_property("user_data", py::overload_cast<>(&CopcExtents::UserData),
-                      py::overload_cast<std::shared_ptr<CopcExtent>>(&CopcExtents::UserData))
-        .def_property("scan_angle", py::overload_cast<>(&CopcExtents::ScanAngle),
-                      py::overload_cast<std::shared_ptr<CopcExtent>>(&CopcExtents::ScanAngle))
-        .def_property("point_source_id", py::overload_cast<>(&CopcExtents::PointSourceId),
-                      py::overload_cast<std::shared_ptr<CopcExtent>>(&CopcExtents::PointSourceId))
-        .def_property("gps_time", py::overload_cast<>(&CopcExtents::GpsTime),
-                      py::overload_cast<std::shared_ptr<CopcExtent>>(&CopcExtents::GpsTime))
-        .def_property("red", py::overload_cast<>(&CopcExtents::Red),
-                      py::overload_cast<std::shared_ptr<CopcExtent>>(&CopcExtents::Red))
-        .def_property("green", py::overload_cast<>(&CopcExtents::Green),
-                      py::overload_cast<std::shared_ptr<CopcExtent>>(&CopcExtents::Green))
-        .def_property("blue", py::overload_cast<>(&CopcExtents::Blue),
-                      py::overload_cast<std::shared_ptr<CopcExtent>>(&CopcExtents::Blue))
-        .def_property("nir", py::overload_cast<>(&CopcExtents::Nir),
-                      py::overload_cast<std::shared_ptr<CopcExtent>>(&CopcExtents::Nir))
-        .def_property("extra_bytes", py::overload_cast<>(&CopcExtents::ExtraBytes),
-                      py::overload_cast<std::vector<std::shared_ptr<CopcExtent>>>(&CopcExtents::ExtraBytes))
-        .def_property_readonly("extents", py::overload_cast<>(&CopcExtents::Extents))
-        .def("__str__", &CopcExtents::ToString)
-        .def("__repr__", &CopcExtents::ToString);
 }

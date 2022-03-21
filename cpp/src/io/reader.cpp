@@ -4,7 +4,6 @@
 #include <stdexcept>
 
 #include "copc-lib/copc/config.hpp"
-#include "copc-lib/copc/extents.hpp"
 #include "copc-lib/hierarchy/internal/hierarchy.hpp"
 #include "copc-lib/io/reader.hpp"
 #include "copc-lib/las/header.hpp"
@@ -37,9 +36,8 @@ void Reader::InitReader()
     auto copc_info = ReadCopcInfoVlr();
     auto wkt = ReadWktVlr(vlrs_);
     auto eb = ReadExtraBytesVlr(vlrs_);
-    auto copc_extents = ReadCopcExtentsVlr(vlrs_, eb);
 
-    config_ = copc::CopcConfig(header, copc_info, copc_extents, wkt.wkt, eb);
+    config_ = copc::CopcConfig(header, copc_info, wkt.wkt, eb);
 
     hierarchy_ = std::make_shared<Internal::Hierarchy>(copc_info.root_hier_offset, copc_info.root_hier_size);
 }
@@ -81,27 +79,6 @@ CopcInfo Reader::ReadCopcInfoVlr()
 {
     in_stream_->seekg(COPC_OFFSET);
     return {lazperf::copc_info_vlr::create(*in_stream_)};
-}
-
-CopcExtents Reader::ReadCopcExtentsVlr(std::map<uint64_t, las::VlrHeader> &vlrs, const las::EbVlr &eb_vlr) const
-{
-    auto offset = FetchVlr(vlrs, "copc", 10000);
-    auto extended_offset = FetchVlr(vlrs, "rock_robotic", 10001);
-    if (offset == 0)
-        throw std::runtime_error("Reader::ReadCopcExtentsVlr: No COPC Extents VLR found in file.");
-
-    in_stream_->seekg(offset + lazperf::vlr_header::Size);
-    CopcExtents extents(las::CopcExtentsVlr::create(*in_stream_, vlrs[offset].data_length),
-                        static_cast<int8_t>(reader_->header().point_format_id),
-                        static_cast<uint16_t>(eb_vlr.items.size()), extended_offset != 0);
-
-    // Load mean/var if they exist
-    if (extended_offset != 0)
-    {
-        in_stream_->seekg(extended_offset + lazperf::vlr_header::Size);
-        extents.SetExtendedStats(las::CopcExtentsVlr::create(*in_stream_, vlrs[extended_offset].data_length));
-    }
-    return extents;
 }
 
 las::WktVlr Reader::ReadWktVlr(std::map<uint64_t, las::VlrHeader> &vlrs)
