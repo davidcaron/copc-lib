@@ -164,6 +164,23 @@ class Points
             points_[i]->UnscaledZ(in[i]);
     }
 
+    std::vector<uint16_t> Intensity() const
+    {
+        std::vector<uint16_t> out;
+        out.resize(Size());
+        std::transform(points_.begin(), points_.end(), out.begin(),
+                       [](const std::shared_ptr<Point> &p) { return p->Intensity(); });
+        return out;
+    }
+    void Intensity(const std::vector<uint16_t> &in)
+    {
+        if (in.size() != Size())
+            throw std::runtime_error("Intensity setter array must be same size as Points array!");
+
+        for (unsigned i = 0; i < points_.size(); ++i)
+            points_[i]->Intensity(in[i]);
+    }
+
     std::vector<uint8_t> Classification() const
     {
         std::vector<uint8_t> out;

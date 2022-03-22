@@ -319,6 +319,8 @@ PYBIND11_MODULE(_core, m)
                       py::overload_cast<const std::vector<int32_t> &>(&las::Points::UnscaledZ))
         .def_property("classification", py::overload_cast<>(&las::Points::Classification, py::const_),
                       py::overload_cast<const std::vector<uint8_t> &>(&las::Points::Classification))
+        .def_property("intensity", py::overload_cast<>(&las::Points::Intensity, py::const_),
+                      py::overload_cast<const std::vector<uint16_t> &>(&las::Points::Intensity))
         .def_property("point_source_id", py::overload_cast<>(&las::Points::PointSourceId, py::const_),
                       py::overload_cast<const std::vector<uint8_t> &>(&las::Points::PointSourceId))
         .def_property("red", py::overload_cast<>(&las::Points::Red, py::const_),
