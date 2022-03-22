@@ -13,6 +13,8 @@ CopcInfo::CopcInfo(const lazperf::copc_info_vlr &copc_info_vlr)
     spacing = copc_info_vlr.spacing;
     root_hier_offset = copc_info_vlr.root_hier_offset;
     root_hier_size = copc_info_vlr.root_hier_size;
+    gpstime_minimum = copc_info_vlr.gpstime_minimum;
+    gpstime_maximum = copc_info_vlr.gpstime_maximum;
 }
 
 lazperf::copc_info_vlr CopcInfo::ToLazPerf() const
@@ -41,6 +43,8 @@ std::string CopcInfo::ToString() const
     ss << "\tcenter_z: " << center_z << std::endl;
     ss << "\thalfsize: " << halfsize << std::endl;
     ss << "\tspacing: " << spacing << std::endl;
+    ss << "\tgpstime_minimum: " << gpstime_minimum << std::endl;
+    ss << "\tgpstime_maximum: " << gpstime_maximum << std::endl;
     return ss.str();
 }
 
