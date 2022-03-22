@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+#include <pybind11/numpy.h>
 #include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -332,6 +333,24 @@ PYBIND11_MODULE(_core, m)
         .def_property_readonly("point_format_id", &las::Points::PointFormatId)
         .def_property_readonly("point_record_length", &las::Points::PointRecordLength)
         .def_property_readonly("eb_byte_size", &las::Points::EbByteSize)
+        .def_property_readonly("xyz", [](las::Points &s) -> py::array { 
+            py::array_t<double> arr(py::buffer_info(
+                nullptr,
+                sizeof(double), // itemsize
+                py::format_descriptor<double>::format(),
+                2, // ndim
+                std::vector<size_t> {s.Size(), 3}, // shape
+                std::vector<size_t> {3 * sizeof(double), sizeof(double)} // strides
+            ));
+            auto arr_view = arr.mutable_unchecked<2>();
+            for (py::ssize_t idx = 0; idx < arr_view.shape(0); idx++) {
+                auto p = s[idx];
+                arr_view(idx, 0) = p->X();
+                arr_view(idx, 1) = p->Y();
+                arr_view(idx, 2) = p->Z();
+            }
+            return arr;
+        })
         .def("AddPoint", &las::Points::AddPoint)
         .def("AddPoints", py::overload_cast<las::Points>(&las::Points::AddPoints))
         .def("AddPoints", py::overload_cast<std::vector<std::shared_ptr<las::Point>>>(&las::Points::AddPoints))
