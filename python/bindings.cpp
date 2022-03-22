@@ -26,6 +26,10 @@ namespace py = pybind11;
 using namespace copc;
 
 PYBIND11_MAKE_OPAQUE(std::vector<char>);
+PYBIND11_MAKE_OPAQUE(std::vector<double>);
+PYBIND11_MAKE_OPAQUE(std::vector<int32_t>);
+PYBIND11_MAKE_OPAQUE(std::vector<uint8_t>);
+PYBIND11_MAKE_OPAQUE(std::vector<uint16_t>);
 
 PYBIND11_MODULE(_core, m)
 {
@@ -40,6 +44,10 @@ PYBIND11_MODULE(_core, m)
                 // Convert string back to vector<char> for unpickling
                 return std::vector<char>(s.begin(), s.end());
             }));
+    py::bind_vector<std::vector<double>>(m, "VectorDouble");
+    py::bind_vector<std::vector<int32_t>>(m, "VectorInt32");
+    py::bind_vector<std::vector<uint8_t>>(m, "VectorUInt8");
+    py::bind_vector<std::vector<uint16_t>>(m, "VectorUInt16");
 
     py::class_<VoxelKey>(m, "VoxelKey")
         .def(py::init<>())
