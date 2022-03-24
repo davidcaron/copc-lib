@@ -23,6 +23,8 @@
 #include <copc-lib/laz/compressor.hpp>
 #include <copc-lib/laz/decompressor.hpp>
 
+#include "parts_reader.hpp"
+
 namespace py = pybind11;
 using namespace copc;
 
@@ -578,4 +580,15 @@ PYBIND11_MODULE(_core, m)
         .def_readwrite("gpstime_maximum", &CopcInfo::gpstime_maximum)
         .def("__str__", &CopcInfo::ToString)
         .def("__repr__", &CopcInfo::ToString);
+
+    py::class_<PartsReader>(m, "PartsReader")
+        .def(py::init<>())
+        .def("ReadHeader", &PartsReader::ReadHeader, py::arg("header_with_copc_vlr"))
+        .def("InitCopcConfig", &PartsReader::InitCopcConfig, py::arg("vlr_data"), py::arg("evlr_data"))
+        .def_property_readonly("copc_config", &PartsReader::CopcConfig)
+        .def_readwrite("point_offset", &PartsReader::point_offset)
+        .def_readwrite("evlr_offset", &PartsReader::evlr_offset)
+        .def("FindNode", &Reader::FindNode, py::arg("key"))
+        .def("GetPoints", &PartsReader::GetPoints, py::arg("data"), py::arg("point_count"))
+        .def("GetAllNodes", &PartsReader::GetAllNodes);
 }

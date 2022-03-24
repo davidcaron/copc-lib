@@ -17,7 +17,7 @@ set(COPC_PYTHON_LIB _core)
 find_package(pybind11 CONFIG REQUIRED)
 
 # add the python lib
-pybind11_add_module(${COPC_PYTHON_LIB} bindings.cpp)
+pybind11_add_module(${COPC_PYTHON_LIB} bindings.cpp parts_reader.cpp)
 if (LAZPERF_IS_FOUND)
     target_link_libraries(${COPC_PYTHON_LIB} PRIVATE lazperf_s copc-lib-s)
 else()
