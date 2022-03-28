@@ -20,7 +20,7 @@ class PartsReader : public BaseIO
   public:
     PartsReader() = default;
 
-    void ReadHeader(std::string &header_with_copc_vlr);
+    void ReadHeader(std::string &header_data);
 
     void InitCopcConfig(std::string &vlr_data, std::string &evlr_data);
 

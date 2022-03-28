@@ -20,18 +20,15 @@ const int COPC_VLR_LENGTH = 160;
 namespace copc
 {
 
-void PartsReader::ReadHeader(std::string &header_with_copc_vlr)
+void PartsReader::ReadHeader(std::string &header_data)
 {
-    const int header_length = LAS_HEADER14_LENGTH + COPC_VLR_LENGTH;
-    if (header_with_copc_vlr.length() != header_length)
-        throw std::runtime_error("PartsReader::ReadHeader: header_with_copc_vlr must be " +
-                                 std::to_string(header_length) + " bytes.");
-    std::istringstream stream(header_with_copc_vlr);
+    if (header_data.length() != LAS_HEADER14_LENGTH)
+        throw std::runtime_error("PartsReader::ReadHeader: header_data must be " + std::to_string(LAS_HEADER14_LENGTH) +
+                                 " bytes.");
+    std::istringstream stream(header_data);
     lazperf_header_ = header14::create(stream);
     // fix point_format_id when compressed, see lazperf's validateHeader
     lazperf_header_.point_format_id &= 0x3f;
-
-    // header_ = las::LasHeader::FromLazPerf(lazperf_header_);
 
     point_offset = lazperf_header_.point_offset;
     evlr_offset = lazperf_header_.evlr_offset;

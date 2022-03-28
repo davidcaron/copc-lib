@@ -583,7 +583,7 @@ PYBIND11_MODULE(_core, m)
 
     py::class_<PartsReader>(m, "PartsReader")
         .def(py::init<>())
-        .def("ReadHeader", &PartsReader::ReadHeader, py::arg("header_with_copc_vlr"))
+        .def("ReadHeader", &PartsReader::ReadHeader, py::arg("header_data"))
         .def("InitCopcConfig", &PartsReader::InitCopcConfig, py::arg("vlr_data"), py::arg("evlr_data"))
         .def_property_readonly("copc_config", &PartsReader::CopcConfig)
         .def_readwrite("point_offset", &PartsReader::point_offset)
